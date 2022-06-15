@@ -1,0 +1,25 @@
+image: node:16.13.0
+
+pipelines:
+  branches:
+    dev:
+      - step:
+          name: Install dependencies and Build
+          caches:
+            - node
+          script:
+            - yarn
+            - yarn dev
+          artifacts:
+            - dist/**
+      - step:
+          name: Deploy artifacts using sftp
+          deployment: production
+          script:
+            - pipe: atlassian/sftp-deploy:0.5.8
+              variables:
+                USER: $USER
+                SERVER: $SERVER
+                REMOTE_PATH: 'public_html/dist'
+                LOCAL_PATH: 'dist/**'
+                PASSWORD: $PASSWORD
